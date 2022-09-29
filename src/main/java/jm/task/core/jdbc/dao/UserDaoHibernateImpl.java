@@ -23,7 +23,7 @@ public class UserDaoHibernateImpl implements UserDao {
             transaction.commit();
             System.out.println("Created table in given database...");
         } catch (Exception e) {
-            //transaction.rollback();
+            transaction.rollback();
             e.printStackTrace();
         }
     }
@@ -37,7 +37,7 @@ public class UserDaoHibernateImpl implements UserDao {
             transaction.commit();
             System.out.println("Dropped  table in given database...");
         } catch (Exception e) {
-            //transaction.rollback();
+            transaction.rollback();
             e.printStackTrace();
         }
     }
@@ -51,7 +51,7 @@ public class UserDaoHibernateImpl implements UserDao {
             transaction.commit();
             System.out.println("User with name: \"" + name + " " + lastName + "\" added to database...");
         } catch (Exception e) {
-            //transaction.rollback();
+            transaction.rollback();
             e.printStackTrace();
         }
     }
@@ -66,7 +66,7 @@ public class UserDaoHibernateImpl implements UserDao {
             transaction.commit();
             System.out.println("Deleted user in given database, id " + id + "...");
         } catch (Exception e) {
-            //transaction.rollback();
+            transaction.rollback();
             e.printStackTrace();
         }
     }
@@ -95,7 +95,7 @@ public class UserDaoHibernateImpl implements UserDao {
             transaction.commit();
             System.out.println("Cleared table in given database...");
         } catch (Exception e) {
-            //transaction.rollback();
+            transaction.rollback();
             e.printStackTrace();
         }
     }
