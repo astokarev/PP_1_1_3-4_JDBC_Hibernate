@@ -22,7 +22,9 @@ public class UserDaoJDBCImpl implements UserDao {
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS users" +
                     "(id BIGINT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255), last_name VARCHAR(255), age INT)");
             conn.commit();
+            conn.rollback();
         } catch (SQLException e) {
+
             e.printStackTrace();
         }
     }
@@ -32,6 +34,7 @@ public class UserDaoJDBCImpl implements UserDao {
         try (Statement statement = conn.createStatement()) {
             statement.executeUpdate("DROP TABLE IF EXISTS users");
             conn.commit();
+            conn.rollback();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -45,6 +48,7 @@ public class UserDaoJDBCImpl implements UserDao {
             pstm.setByte(3, age);
             pstm.executeUpdate();
             conn.commit();
+            conn.rollback();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -56,6 +60,7 @@ public class UserDaoJDBCImpl implements UserDao {
             pstm.setLong(1, id);
             pstm.executeUpdate();
             conn.commit();
+            conn.rollback();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -72,6 +77,7 @@ public class UserDaoJDBCImpl implements UserDao {
                 user.setId(resultSet.getLong("id"));
                 users.add(user);
                 conn.commit();
+                conn.rollback();
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -85,6 +91,7 @@ public class UserDaoJDBCImpl implements UserDao {
         try (Statement statement = conn.createStatement()) {
             statement.executeUpdate("TRUNCATE TABLE users");
             conn.commit();
+            conn.rollback();
         } catch (SQLException e) {
             e.printStackTrace();
         }
