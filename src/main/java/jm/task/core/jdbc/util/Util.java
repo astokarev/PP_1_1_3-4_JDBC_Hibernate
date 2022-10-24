@@ -20,48 +20,46 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class Util {
+    // реализуйте настройку соеденения с БД
     private static SessionFactory sessionFactory;
-    private static final String DB_DRIVER = "com.mysql.cj.jdbc.Driver";
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/db";
-    private static final String DB_USERNAME = "root";
-    private static final String DB_PASSWORD = "root";
-    private static final String DB_DIALECT = "org.hibernate.dialect.MySQLDialect";
+    private static final String url = "jdbc:mysql://localhost:3306/test?" +
+            "&serverTimeZone=Europe/Moscow&useSSL=false&allowPublicKeyRetrieval=true";
+    private static final String user = "root";
+    private static final String password = "root";
 
     public static Connection getConnection() {
-        Connection connection = null;
         try {
-            Class.forName(DB_DRIVER);
-            connection = DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD);
-            System.out.println("Connection OK");
-        } catch (ClassNotFoundException | SQLException e) {
+            return DriverManager.getConnection(url, user, password);
+        } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Connection ERROR");
         }
-        return connection;
+        return null;
     }
 
-    public static Session getSession() {
+    public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
             try {
                 Configuration configuration = new Configuration();
                 Properties settings = new Properties();
-                settings.put(Environment.DRIVER, DB_DRIVER);
-                settings.put(Environment.URL, DB_URL);
-                settings.put(Environment.USER, DB_USERNAME);
-                settings.put(Environment.PASS, DB_PASSWORD);
-                settings.put(Environment.DIALECT, DB_DIALECT);
-                settings.put(Environment.SHOW_SQL, "true");
+                settings.put(Environment.DRIVER, "com.mysql.cj.jdbc.Driver");
+                settings.put(Environment.URL, url);
+                settings.put(Environment.USER, user);
+                settings.put(Environment.PASS, password);
+                settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
+                settings.put(Environment.SHOW_SQL, "false");
                 settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+                settings.put(Environment.HBM2DDL_AUTO, "create-drop");
+
                 configuration.setProperties(settings);
                 configuration.addAnnotatedClass(User.class);
                 ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                         .applySettings(configuration.getProperties()).build();
+
                 sessionFactory = configuration.buildSessionFactory(serviceRegistry);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        return sessionFactory.getCurrentSession();
+        return sessionFactory;
     }
-
 }

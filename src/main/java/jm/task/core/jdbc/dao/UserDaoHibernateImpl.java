@@ -2,6 +2,7 @@ package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -9,94 +10,102 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
+    public UserDaoHibernateImpl() {
 
-    private static final String CREATE_USERS_TABLE = "CREATE TABLE IF NOT EXISTS  %s ( id BIGINT not NULL AUTO_INCREMENT, name VARCHAR(255), lastName VARCHAR(255), age TINYINT, PRIMARY KEY ( id ))";
-    private static final String DROP_USERS_TABLE = "drop table if exists ";
-    private static final String CLEAR_USERS_TABLE = "DELETE FROM ";
+    }
+
     @Override
     public void createUsersTable() {
         Transaction transaction = null;
-        try (Session session = Util.getSession();) {
-            User user = new User();
+        String hql = """
+                    create table `test`.`User`
+                    (id bigint auto_increment primary key ,
+                    name varchar(50) not null ,
+                    lastName varchar(50) not null ,
+                    age tinyint)""";
+        try (Session session = Util.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            session.createNativeQuery(String.format(CREATE_USERS_TABLE, user.getClass().getSimpleName())).executeUpdate();
+            session.createSQLQuery(hql).executeUpdate();
             transaction.commit();
-            System.out.println("Created table in given database...");
         } catch (Exception e) {
-            transaction.rollback();
-            e.printStackTrace();
+            if (transaction != null) {
+                transaction.rollback();
+            }
         }
     }
+
     @Override
     public void dropUsersTable() {
         Transaction transaction = null;
-        try (Session session = Util.getSession();) {
-            User user = new User();
+        String hql = "drop table if exists `test`.`User`";
+        try (Session session = Util.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            session.createNativeQuery(DROP_USERS_TABLE + user.getClass().getSimpleName()).executeUpdate();
+            session.createSQLQuery(hql).executeUpdate();
             transaction.commit();
-            System.out.println("Dropped  table in given database...");
         } catch (Exception e) {
-            transaction.rollback();
-            e.printStackTrace();
+            if (transaction != null) {
+                transaction.rollback();
+            }
         }
     }
+
     @Override
     public void saveUser(String name, String lastName, byte age) {
         Transaction transaction = null;
-        try (Session session = Util.getSession();) {
-            User user = new User(name, lastName, age);
+        try (Session session = Util.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            session.save(user);
+            session.save(new User(name, lastName, age));
+            System.out.println("User с именем " + name + " добавлен в базу данных");
             transaction.commit();
-            System.out.println("User with name: \"" + name + " " + lastName + "\" added to database...");
-        } catch (Exception e) {
-            transaction.rollback();
-            e.printStackTrace();
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
         }
     }
 
     @Override
     public void removeUserById(long id) {
         Transaction transaction = null;
-        try (Session session = Util.getSession();) {
+        try (Session session = Util.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            User user = session.get(User.class, id);
-            session.delete(user);
+            session.delete(session.get(User.class, id));
             transaction.commit();
-            System.out.println("Deleted user in given database, id " + id + "...");
-        } catch (Exception e) {
-            transaction.rollback();
-            e.printStackTrace();
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
         }
     }
+
     @Override
-    public List < User > getAllUsers() {
-        List < User > result = new ArrayList< >();
+    public List<User> getAllUsers() {
         Transaction transaction = null;
-        try (Session session = Util.getSession();) {
+        List<User> users = new ArrayList<>();
+        try (Session session = Util.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            User user = new User();
-            result.addAll(session.createQuery("FROM " + user.getClass().getSimpleName()).getResultList());
+            users = (List<User>) session.createQuery("from User").getResultList();
             transaction.commit();
-        } catch (Exception e) {
-            //transaction.rollback();
-            e.printStackTrace();
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
         }
-        return result;
+        return users;
     }
+
     @Override
     public void cleanUsersTable() {
         Transaction transaction = null;
-        try (Session session = Util.getSession();) {
-            User user = new User();
+        String hql = "delete from User";
+        try (Session session = Util.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            session.createNativeQuery(CLEAR_USERS_TABLE + user.getClass().getSimpleName()).executeUpdate();
+            session.createQuery(hql).executeUpdate();
             transaction.commit();
-            System.out.println("Cleared table in given database...");
         } catch (Exception e) {
-            transaction.rollback();
-            e.printStackTrace();
+            if (transaction != null) {
+                transaction.rollback();
+            }
         }
     }
 
