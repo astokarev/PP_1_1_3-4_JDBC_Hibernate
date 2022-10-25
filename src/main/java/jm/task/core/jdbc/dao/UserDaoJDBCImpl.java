@@ -117,12 +117,8 @@ public class UserDaoJDBCImpl implements UserDao {
                     user.setAge(resultSet.getByte("age"));
                     userList.add(user);
                 }
-                connection.commit();
                 log.info("Ok. all users add in the table...");
             } catch (SQLException ex) {
-                if (connection != null) {
-                    connection.rollback();
-                }
                 log.warning("Missing get all users add is failing..." + ex.getMessage());
             }
         } catch (SQLException e) {
