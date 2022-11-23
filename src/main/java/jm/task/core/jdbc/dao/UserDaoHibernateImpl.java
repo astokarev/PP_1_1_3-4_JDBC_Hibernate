@@ -13,7 +13,7 @@ import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
     private static final SessionFactory sessionFactory = Util.getSessionFactory();
-    User user = new User();
+
 
     private static final String CREATE_USERS_TABLE_SQL = "CREATE TABLE IF NOT EXISTS  %s ( id BIGINT not NULL AUTO_INCREMENT, name VARCHAR(255), lastName VARCHAR(255), age TINYINT, PRIMARY KEY ( id ))";
     private static final String DROP_USERS_TABLE_SQL = "drop table if exists ";
@@ -27,6 +27,7 @@ public class UserDaoHibernateImpl implements UserDao {
     public void createUsersTable() {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
+            User user = new User();
             transaction = session.beginTransaction();
             session.createNativeQuery(String.format(CREATE_USERS_TABLE_SQL, user.getClass().getSimpleName())).executeUpdate();
             transaction.commit();
@@ -39,7 +40,7 @@ public class UserDaoHibernateImpl implements UserDao {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
-            session.createNativeQuery(DROP_USERS_TABLE_SQL + user.getClass().getSimpleName()).executeUpdate();
+            session.createNativeQuery(DROP_USERS_TABLE_SQL + User.class.getSimpleName()).executeUpdate();
             transaction.commit();
         } catch (Exception e) {
         }
@@ -94,6 +95,7 @@ public class UserDaoHibernateImpl implements UserDao {
     public void cleanUsersTable() {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
+            User user = new User();
             transaction = session.beginTransaction();
             session.createNativeQuery(CLEAR_USERS_TABLE_SQL + user.getClass().getSimpleName()).executeUpdate();
             transaction.commit();
